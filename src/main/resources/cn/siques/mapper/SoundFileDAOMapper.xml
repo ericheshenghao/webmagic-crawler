@@ -1,0 +1,23 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.siques.dao.SoundFileDAO">
+<!--        void save(SoundFile soundFile);-->
+        <insert id="save" parameterType="SoundFile" useGeneratedKeys="true" keyProperty="id" >
+
+            insert into sound_file
+            values (#{id},#{name},#{ext},#{size},#{path},#{classification},#{description},#{url},#{statu})
+
+        </insert>
+
+<!--    List<SoundFile> findSoundInfo(SoundFile param);-->
+    <select id="findSoundInfo" parameterType="String" resultType="SoundFile">
+            select id,name,ext,size,path,classification,description,url,statu
+            from sound_file
+            where url=#{url}
+    </select>
+<!--      void updateInfo(SoundFile soundFile);-->
+    <update id="updateInfo" parameterType="SoundFile" >
+         update sound_file set statu=#{statu} where url=#{url}
+    </update>
+
+</mapper>

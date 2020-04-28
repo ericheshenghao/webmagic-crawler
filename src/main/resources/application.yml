@@ -1,0 +1,28 @@
+server:
+  port: 8084
+mybatis:
+  type-aliases-package: cn.siques.entity
+  mapper-locations: classpath:/cn/siques/mapper/*.xml
+---
+Spring:
+  profiles: dev
+  datasource:
+    username: root
+    password: l1itdhjaoiqw32kwqe$5asasd*a21
+    url: jdbc:mysql://localhost:3306/sound?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+upload:
+  dir: D:\upload
+---
+Spring:
+  profiles: prod
+  datasource:
+    username: root
+    password: l1itdhjaoiqw32kwqe$5asasd*a21
+    url: jdbc:mysql://106.54.247.224:3306/sound?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+upload:
+  dir: /upload
+

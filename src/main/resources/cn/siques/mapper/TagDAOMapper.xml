@@ -1,0 +1,16 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.siques.dao.TagDAO">
+    <!--        void save(SoundFile soundFile);-->
+    <insert id="save" parameterType="Tag" useGeneratedKeys="true" keyProperty="id" >
+            insert into tag
+            values (#{id},#{name})
+
+        </insert>
+<!--    List<Tag> findTag(String name);-->
+    <select id="findTag" parameterType="String" resultType="Tag">
+            select id,name
+            from tag
+            where name=#{name}
+    </select>
+</mapper>

@@ -1,0 +1,17 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.siques.dao.File_TagDAO">
+    <!--       void save(Integer fileId, Integer tagId);-->
+    <insert id="save" parameterType="Integer">
+            insert into file_has_tag
+            values (#{fileId},#{tagId})
+
+      </insert>
+<!--     List<Tag> findTagByFileId(Integer id);-->
+    <select id="findTagByFileId" parameterType="Integer" resultType="Tag">
+           select  fileId,tagId
+            from file_has_tag
+            where fileId=#{id}
+    </select>
+
+</mapper>
