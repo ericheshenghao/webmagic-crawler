@@ -20,7 +20,7 @@ Spring:
   datasource:
     username: root
     password: l1itdhjaoiqw32kwqe$5asasd*a21
-    url: jdbc:mysql://106.54.247.224:3306/sound?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8
+    url: jdbc:mysql://112.12.231.123:3306/sound?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8
     driver-class-name: com.mysql.cj.jdbc.Driver
     type: com.alibaba.druid.pool.DruidDataSource
 upload:
