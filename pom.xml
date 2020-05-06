@@ -30,9 +30,8 @@
         <dependency>
             <groupId>com.codeborne</groupId>
             <artifactId>phantomjsdriver</artifactId>
-            <version>1.4.3</version>
+            <version>1.4.4</version>
         </dependency>
-
 
 
         <!-- spring相关包 -->
@@ -128,6 +127,12 @@
         <!--            <groupId>org.apache.httpcomponents</groupId>-->
         <!--            <artifactId>httpclient</artifactId>-->
         <!--        </dependency>-->
+
+        <dependency>
+            <groupId>net.lightbody.bmp</groupId>
+            <artifactId>browsermob-core</artifactId>
+            <version>2.1.5</version>
+        </dependency>
 
         <!-- jsoup -->
         <dependency>

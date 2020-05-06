@@ -21,5 +21,6 @@ public class SoundFile {
     private String size;
     private String classification;
     private String description;
+    private String location;
     private Boolean statu;
 }

@@ -2,15 +2,15 @@ package cn.siques.crawler;
 
 import cn.siques.Exception.FileDownloadFailException;
 import cn.siques.service.SoundFileService;
+import com.mysql.cj.util.TimeUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
-import org.springframework.beans.factory.annotation.Value;
 
-import javax.annotation.Resource;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.concurrent.TimeUnit;
 
 
 @Slf4j
@@ -60,6 +60,7 @@ public class Request {
        if(l==34){
            log.warn("认证信息已失效");
            System.exit(0);
+           try{ TimeUnit.SECONDS.sleep(5000);} catch (InterruptedException e ){e.printStackTrace();}
           throw new FileDownloadFailException("认证信息已失效，下载失败");
        }
 

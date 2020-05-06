@@ -1,5 +1,6 @@
 package cn.siques.pipeline;
 
+import cn.siques.crawler.Auth;
 import cn.siques.crawler.Request;
 import cn.siques.entity.SoundFile;
 import cn.siques.entity.Tag;
@@ -14,7 +15,10 @@ import us.codecraft.webmagic.Task;
 import us.codecraft.webmagic.pipeline.Pipeline;
 
 import javax.annotation.Resource;
+import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Component
@@ -29,11 +33,15 @@ public class SoundInfoPipeline implements Pipeline {
     @Resource
     File_TagService file_tagService;
 
+
+
     @SneakyThrows
     @Override
     public void process(ResultItems resultItems, Task task) {
+        // 抽取出的文件数据
         SoundFile soundFile = resultItems.get("soundInfo");
 
+        // 认证及下载信息
         List<String> list = resultItems.get("download");
 
         ArrayList<String> taglists = resultItems.get("taglists");
@@ -84,26 +92,42 @@ public class SoundInfoPipeline implements Pipeline {
                 }
 
                 // 发起下载请求
-                Request request = new Request();
-                request.download(list.get(0),list.get(1),list.get(2),list.get(3));
+
+                    Request request = new Request();
+                    request.download(list.get(0),list.get(1),list.get(2),list.get(3));
+
+                // 下载完成后设置成true
+                soundFile.setStatu(true);
+                // 更新状态
+                soundFileService.updateInfo(soundFile);
+
 
                 // 这种情况表明已有数据，但可能此前下载是失败的
             }else if (soundInfo.size()!=0&&soundInfo.get(0).getStatu()==false){
+                // 删除原来路径下的文件
+                String oldpath = soundInfo.get(0).getPath();
+                String realFilename = soundInfo.get(0).getName()+soundInfo.get(0).getExt();
+                String realpath = oldpath+realFilename;
+                File file = new File(realpath, realFilename);
+                if(file.exists()) file.delete();
+
+                //先更新路径状态
+                System.out.println("更新路径"+list.get(3));
+                System.out.println("更新时间"+new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                SoundFile pathChanged = soundInfo.get(0).setPath(list.get(3));
+                soundFileService.updateInfo(pathChanged);
+
+                // 文件下载到新路径
                 Request request = new Request();
                 request.download(list.get(0),list.get(1),list.get(2),list.get(3));
+
+
+                // 下载完成后设置成true
+                pathChanged.setStatu(true);
+                // 更新下载状态
+                soundFileService.updateInfo(pathChanged);
             }
         }
-
-
-        if(soundFile!=null){
-            // 下载完成后设置成true
-            soundFile.setStatu(true);
-            // 更新状态
-            soundFileService.updateInfo(soundFile);
-//            System.out.println("更新状态能否拿到id"+soundFile.getUrl());
-        }
-
-
 
     }
 }
