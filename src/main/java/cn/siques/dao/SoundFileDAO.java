@@ -9,5 +9,5 @@ public interface SoundFileDAO {
 
     List<SoundFile> findSoundInfo(String url);
 
-    void updateInfo(SoundFile soundFile);
+    void updateInfoByURL(SoundFile soundFile);
 }

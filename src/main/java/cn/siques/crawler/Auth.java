@@ -28,13 +28,14 @@ import java.util.regex.Pattern;
 
 
 @Slf4j
+@Component
 public class Auth {
 
     private ChromeDriver driver;
     public static String cookie=null;
     public static  String token=null;
-//    public String filedir="src/main/resources/static/phantomjs-2.1.1-windows/bin/chromedriver.exe";
-    public String filedir="/files/chromedriver_linux";
+    @Value("${driver.dir}")
+    public String driverdir;
 
     private static String USERNAME = "秋刀不是鱼"; //账号
     private static String PASSWORD = "heshenghao"; //密码
@@ -50,7 +51,7 @@ public class Auth {
         dcaps.setJavascriptEnabled(true);
 
         System.setProperty("webdriver.chrome.driver",
-                filedir);
+                driverdir);
 
         // 驱动支持
 //        dcaps.setCapability(PhantomJSDriverService.PHANTOMJS_EXECUTABLE_PATH_PROPERTY,
@@ -97,8 +98,6 @@ public class Auth {
         driver = new ChromeDriver(options);
 
 //         driver = new ChromeDriver(dcaps);
-
-
 //        JavascriptExecutor jse = (JavascriptExecutor) driver;
 //        String width = (String) jse.executeScript("download_source($(this), 19898, 'main')");
         driver.manage().timeouts().implicitlyWait(1, TimeUnit.MINUTES);
@@ -177,15 +176,11 @@ public class Auth {
                 String reqUrl = harRequest.getUrl();
                 if(reqUrl.startsWith("https://www.ear0.com/index.php?app=sound&ac=download&cx=link&soundid=")){
 
-
-
-
                     List<String> strs = new ArrayList<String>();
                     Pattern p = Pattern.compile("(?<=token=).*(?=&)");
                     Matcher m = p.matcher(reqUrl);
                     while(m.find()) {
                         strs.add(m.group());
-
                     }
 
                     token=strs.get(0);

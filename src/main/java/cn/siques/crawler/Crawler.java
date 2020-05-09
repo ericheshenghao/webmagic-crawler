@@ -4,6 +4,7 @@ import cn.siques.dao.SoundFileDAO;
 import cn.siques.entity.SoundFile;
 import cn.siques.pipeline.SoundInfoPipeline;
 
+import cn.siques.pipeline.UpdatePipeline;
 import lombok.SneakyThrows;
 
 import org.jsoup.Jsoup;
@@ -21,6 +22,7 @@ import us.codecraft.webmagic.selector.Selectable;
 
 
 import javax.annotation.Resource;
+
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -29,6 +31,9 @@ import java.util.regex.Pattern;
 
 @Component
 public class Crawler implements PageProcessor {
+
+    @Resource
+    Auth auth;
 
 //    private String downloadPath ="D:/upload/";
     private String downloadPath ="/soundFile/";
@@ -79,7 +84,7 @@ public class Crawler implements PageProcessor {
             String classification= Jsoup.parse(page.getHtml().css("span.type a").toString()).text();
             String description = Jsoup.parse(page.getHtml().css("div.sound_content").toString()).text();
             String originLocation = page.getHtml().css("a.location").$("a","onclick").toString();
-
+            String cover  = page.getHtml().css("div.cover").$("img","src").toString();
 
             String location =null;
             if(originLocation!=null){
@@ -92,23 +97,15 @@ public class Crawler implements PageProcessor {
 
                  location = strs.get(0);
             }
-
-            
             List<Selectable> tagNodes = page.getHtml().css("div.tags a").nodes();
             ArrayList<String> taglists = new ArrayList<>();
-
 
             //标签
             for (Selectable s: tagNodes
                  ) {
                 taglists.add(Jsoup.parse(s.toString()).text());
             }
-
             page.putField("taglists",taglists);
-
-
-
-
 
 
             // 拿到id
@@ -117,7 +114,7 @@ public class Crawler implements PageProcessor {
             String downloadURL= downloadUrlpre+id[1]+downloadUrlMid+ Auth.token+downloadUrlpro;
 
             String cookie = Auth.cookie;
-            soundFile.setName(filename+id[1]).setExt(ext).setSize(size).setClassification(classification).setDescription(description).setPath(storagePath).setUrl(url).setLocation(location);
+            soundFile.setName(filename+id[1]).setCover(cover).setExt(ext).setSize(size).setClassification(classification).setDescription(description).setPath(storagePath).setUrl(url).setLocation(location);
 
             List<String> list = new ArrayList<>();
             list.add(downloadURL);
@@ -171,20 +168,20 @@ public class Crawler implements PageProcessor {
     @Resource
     SoundInfoPipeline soundInfoPipeline;
 
+
+
     @Scheduled(initialDelay = 15000,fixedDelay = 1000*60*60*12)
 //    @Scheduled(initialDelay = 1000,fixedDelay = 1000)
     public void process(){
         String now = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
         System.out.println("获取认证信息: "+now);
-        Auth auth = new Auth();
+
         auth.login();
 
         String now1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
         System.out.println("创建爬虫: "+now1);
         Spider.create( new Crawler()).setScheduler
                 (new QueueScheduler().setDuplicateRemover(new BloomFilterDuplicateRemover(100000))).addPipeline(soundInfoPipeline).addUrl(URL).thread(3).run();
-
-
     }
 
 

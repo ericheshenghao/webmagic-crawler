@@ -5,18 +5,18 @@
         <insert id="save" parameterType="SoundFile" useGeneratedKeys="true" keyProperty="id" >
 
             insert into sound_file
-            values (#{id},#{name},#{ext},#{size},#{path},#{classification},#{description},#{url},#{statu},#{location})
+            values (#{id},#{name},#{ext},#{size},#{path},#{classification},#{description},#{url},#{statu},#{location},#{cover})
 
         </insert>
 
 <!--    List<SoundFile> findSoundInfo(SoundFile param);-->
     <select id="findSoundInfo" parameterType="String" resultType="SoundFile">
-            select id,name,ext,size,path,classification,description,url,statu,location
+            select id,name,ext,size,path,classification,description,url,statu,location,cover
             from sound_file
             where url=#{url}
     </select>
 <!--      void updateInfo(SoundFile soundFile);-->
-    <update id="updateInfo" parameterType="SoundFile" >
+    <update id="updateInfoByURL" parameterType="SoundFile" >
          update sound_file
         <set>
             <if test="statu != null and statu !='' ">
@@ -24,6 +24,12 @@
             </if>
             <if test="path != null ">
                 path=#{path},
+            </if>
+            <if test="location != null ">
+                location=#{location},
+            </if>
+            <if test="cover != null ">
+                cover=#{cover},
             </if>
         </set>
 

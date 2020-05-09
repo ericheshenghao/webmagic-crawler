@@ -8,5 +8,5 @@ public interface SoundFileService {
     SoundFile saveSoundInfo(SoundFile soundFile);
 
     List<SoundFile> findSoundInfo(String url);
-     void updateInfo(SoundFile soundFile);
+     void updateInfoByURL(SoundFile soundFile);
 }

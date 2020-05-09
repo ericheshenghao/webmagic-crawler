@@ -99,7 +99,7 @@ public class SoundInfoPipeline implements Pipeline {
                 // 下载完成后设置成true
                 soundFile.setStatu(true);
                 // 更新状态
-                soundFileService.updateInfo(soundFile);
+                soundFileService.updateInfoByURL(soundFile);
 
 
                 // 这种情况表明已有数据，但可能此前下载是失败的
@@ -115,7 +115,7 @@ public class SoundInfoPipeline implements Pipeline {
                 System.out.println("更新路径"+list.get(3));
                 System.out.println("更新时间"+new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
                 SoundFile pathChanged = soundInfo.get(0).setPath(list.get(3));
-                soundFileService.updateInfo(pathChanged);
+                soundFileService.updateInfoByURL(pathChanged);
 
                 // 文件下载到新路径
                 Request request = new Request();
@@ -125,7 +125,7 @@ public class SoundInfoPipeline implements Pipeline {
                 // 下载完成后设置成true
                 pathChanged.setStatu(true);
                 // 更新下载状态
-                soundFileService.updateInfo(pathChanged);
+                soundFileService.updateInfoByURL(pathChanged);
             }
         }
 

@@ -38,8 +38,8 @@ public class SoundFileImpl  implements SoundFileService {
     }
 
     @Override
-    public void updateInfo(SoundFile soundFile) {
-            soundFileDAO.updateInfo(soundFile);
+    public void updateInfoByURL(SoundFile soundFile) {
+            soundFileDAO.updateInfoByURL(soundFile);
     }
 
 
