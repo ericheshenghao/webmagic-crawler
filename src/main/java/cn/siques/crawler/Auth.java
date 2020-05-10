@@ -215,6 +215,8 @@ public class Auth {
                 long ssl = harTimings.getSsl(TimeUnit.MICROSECONDS);
             }
 
+            // 关闭并退出浏览器
+            driver.close();
         }
     }
 

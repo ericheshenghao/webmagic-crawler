@@ -65,7 +65,7 @@ public class UpdateCrawler implements PageProcessor {
              //放到任务队列
             if(i<100){
                 //放到任务队列
-                System.out.println("当前已到达第"+i+"页");
+                System.out.println("当前更新已到达第"+i+"页");
                 page.addTargetRequest(bkurl);
             }
 
@@ -89,7 +89,7 @@ public class UpdateCrawler implements PageProcessor {
     @Resource
     UpdatePipeline updatePipeline;
 
-    @Scheduled(initialDelay = 1000,fixedDelay = 1000*60*60*12)
+    @Scheduled(initialDelay = 1000,fixedDelay = 1000*60*60*24*10)
     public void process(){
         String now = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
 

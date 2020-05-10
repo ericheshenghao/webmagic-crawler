@@ -16,13 +16,10 @@ public class CrawlerApplication {
 
 
     public static void main(String[] args) {
-
-
         SpringApplication.run(CrawlerApplication.class,args);
-
-
-
     }
+
+
     @Bean
     public TaskScheduler taskScheduler() {
         ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
