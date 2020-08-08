@@ -4,7 +4,7 @@
 <!--        void save(SoundFile soundFile);-->
         <insert id="save" parameterType="SoundFile" useGeneratedKeys="true" keyProperty="id" >
 
-            insert into sound_file
+            insert into sys_soundfile
             values (#{id},#{name},#{ext},#{size},#{path},#{classification},#{description},#{url},#{statu},#{location},#{cover})
 
         </insert>
@@ -12,12 +12,12 @@
 <!--    List<SoundFile> findSoundInfo(SoundFile param);-->
     <select id="findSoundInfo" parameterType="String" resultType="SoundFile">
             select id,name,ext,size,path,classification,description,url,statu,location,cover
-            from sound_file
+            from sys_soundfile
             where url=#{url}
     </select>
 <!--      void updateInfo(SoundFile soundFile);-->
     <update id="updateInfoByURL" parameterType="SoundFile" >
-         update sound_file
+         update sys_soundfile
         <set>
             <if test="statu != null and statu !='' ">
                 statu=#{statu},
@@ -30,6 +30,9 @@
             </if>
             <if test="cover != null ">
                 cover=#{cover},
+            </if>
+            <if test="ext != null ">
+                ext=#{ext},
             </if>
         </set>
 

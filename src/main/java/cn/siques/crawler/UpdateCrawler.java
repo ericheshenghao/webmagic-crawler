@@ -89,7 +89,7 @@ public class UpdateCrawler implements PageProcessor {
     @Resource
     UpdatePipeline updatePipeline;
 
-    @Scheduled(initialDelay = 1000,fixedDelay = 1000*60*60*24*10)
+//    @Scheduled(initialDelay = 1000,fixedDelay = 1000*60*60*24*10)
     public void process(){
         String now = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
 

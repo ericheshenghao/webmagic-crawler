@@ -1,74 +1,150 @@
 package cn.siques.crawler;
 
 import cn.siques.Exception.FileDownloadFailException;
+import cn.siques.entity.File_Detail;
 import cn.siques.service.SoundFileService;
+import com.aliyun.oss.OSS;
+import com.aliyun.oss.OSSClientBuilder;
+import com.aliyun.oss.common.comm.ResponseMessage;
+import com.aliyun.oss.model.PutObjectRequest;
+import com.aliyun.oss.model.PutObjectResult;
 import com.mysql.cj.util.TimeUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 
 import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
+import java.net.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 @Slf4j
 public class Request {
+    private String preDownLoadLink ="https://www.ear0.com/index.php?app=sound&ac=download&cx=link";
 
 
+    public String preDownload(String url,String cookie,String id) throws IOException {
+        String downloadUrl ="";
+        try {
+            CloseableHttpClient client = null;
+            CloseableHttpResponse response = null;
+            try {
+                // 创建一个提交数据的容器
+                List<BasicNameValuePair> parames = new ArrayList<>();
+                parames.add(new BasicNameValuePair("soundid", id));
 
 
-   public void  download(String downloadURL, String cookie, String filename, String storagePath) throws IOException {
+                HttpPost httpPost = new HttpPost(url);
+                httpPost.setEntity(new UrlEncodedFormEntity(parames, "UTF-8"));
+                httpPost.setHeader("Cookie",cookie);
+                client = HttpClients.createDefault();
+                response = client.execute(httpPost);
+                HttpEntity entity = response.getEntity();
+                String result = EntityUtils.toString(entity);
 
+                downloadUrl= URLDecoder.decode(result, "UTF-8");
+//                 downloadUrl = URLDecoder.decode(str1);
 
-            URL downloadurl=new URL(downloadURL);
-            //建立连接
-            URLConnection urlConnection = downloadurl.openConnection();
-            //连接对象类型转换
-            HttpURLConnection connection=(HttpURLConnection)urlConnection;
-            //设定请求方法
-            connection.setRequestMethod("GET");
-
-            connection.setRequestProperty("accept", "*/*");
-            connection.setRequestProperty("connection", "Keep-Alive");
-            connection.setRequestProperty("Accept-Encoding","gzip, deflate, br");
-            connection.setRequestProperty("user-agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64)" +
-                    " AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.87 Safari/537.36");
-            connection.setRequestProperty("Cookie",cookie);
-            // 建立实际的连接
-            connection.connect();
-            
-
-
-
-            FileOutputStream os =null;
-            InputStream is =null;
-//       try {
-            // 获取文件输入流
-
-            is = connection.getInputStream();
-
-            if(!new File(storagePath).exists()){
-                new File(storagePath).mkdirs();
+            } finally {
+                if (response != null) {
+                    response.close();
+                }
+                if (client != null) {
+                    client.close();
+                }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-            os = new FileOutputStream(new File(storagePath, filename));
-            // 文件拷贝
-       long l = IOUtils.copyLarge(is, os);
 
-       if(l==34){
-           log.warn("认证信息已失效");
-           System.exit(0);
-           try{ TimeUnit.SECONDS.sleep(5000);} catch (InterruptedException e ){e.printStackTrace();}
-          throw new FileDownloadFailException("认证信息已失效，下载失败");
+        return downloadUrl;
+    }
+
+
+   public String  download(File_Detail file_detail) throws IOException, InterruptedException {
+       String downloadUrl = preDownload(preDownLoadLink, file_detail.getCookie(), file_detail.getId());
+
+       List<String> strs = new ArrayList<String>();
+       Pattern p = Pattern.compile("(?<=filetype=).*(?=&time)");
+
+       Matcher m = p.matcher(downloadUrl);
+       while(m.find()) {
+           strs.add(m.group());
        }
 
+       String ext = strs.get(0);
 
-            IOUtils.closeQuietly(is);
-            IOUtils.closeQuietly(os);
+        Thread.sleep(10000);
 
-            connection.disconnect();
+       HttpGet httpGet = new HttpGet(downloadUrl);
+       httpGet.setHeader("Cookie",file_detail.getCookie());
+
+       CloseableHttpClient client = HttpClients.createDefault();
+       CloseableHttpResponse res = client.execute(httpGet);
+       HttpEntity entity = res.getEntity();
+       InputStream is = entity.getContent();
+
+       // Endpoint以杭州为例，其它Region请按实际情况填写。
+       String endpoint = "http://oss-cn-hangzhou.aliyuncs.com";
+// 阿里云主账号AccessKey拥有所有API的访问权限，风险很高。强烈建议您创建并使用RAM账号进行API访问或日常运维，请登录 https://ram.console.aliyun.com 创建RAM账号。
+       String accessKeyId = "LTAI4GDTDQm93qwQFzu9nz8a";
+       String accessKeySecret = "IoTPd2UEd7Sx9i1USc1cfrT44C1VZQ";
+
+       OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
+       PutObjectRequest putObjectRequest = new PutObjectRequest(
+               "mango-sound",file_detail.getStoragePath()+"/"+file_detail.getFileName()+"."+ext , is);
+
+       PutObjectResult putObjectResult = ossClient.putObject(putObjectRequest);
+
+//       String storagePath = file_detail.getStoragePath();
+
+       // 关闭OSSClient。
+       ossClient.shutdown();
+
+
+
+//            FileOutputStream os =null;
+//
+//            if(!new File(storagePath).exists()){
+//                new File(storagePath).mkdirs();
+//            }
+//
+//            os = new FileOutputStream(new File(storagePath, file_detail.getFileName()+"."+ext));
+//            // 文件拷贝
+
+
+//       if(is.read(new byte[34])==-1){
+//           log.warn("认证信息已失效");
+//           System.exit(0);
+//           try{ TimeUnit.SECONDS.sleep(5000);} catch (InterruptedException e ){e.printStackTrace();}
+//          throw new FileDownloadFailException("认证信息已失效，下载失败");
+//       }
+
+//
+//            IOUtils.closeQuietly(is);
+//            IOUtils.closeQuietly(os);
+
+            res.close();
+            client.close();
+
+
+       Thread.sleep(3000);
+
+      return ext;
+
 
         }
 

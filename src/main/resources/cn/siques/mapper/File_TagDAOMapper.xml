@@ -3,14 +3,14 @@
 <mapper namespace="cn.siques.dao.File_TagDAO">
     <!--       void save(Integer fileId, Integer tagId);-->
     <insert id="save" parameterType="Integer">
-            insert into file_has_tag
+            insert into sys_soundfile_tag
             values (#{fileId},#{tagId})
 
       </insert>
 <!--     List<Tag> findTagByFileId(Integer id);-->
     <select id="findTagByFileId" parameterType="Integer" resultType="Tag">
            select  fileId,tagId
-            from file_has_tag
+            from sys_soundfile_tag
             where fileId=#{id}
     </select>
 

@@ -2,12 +2,17 @@ package cn.siques.pipeline;
 
 import cn.siques.crawler.Auth;
 import cn.siques.crawler.Request;
+import cn.siques.dao.PageDao;
+import cn.siques.entity.File_Detail;
 import cn.siques.entity.SoundFile;
 import cn.siques.entity.Tag;
 import cn.siques.service.File_TagService;
 import cn.siques.service.SoundFileService;
 import cn.siques.service.TagService;
+import com.aliyun.oss.OSS;
+import com.aliyun.oss.OSSClientBuilder;
 import lombok.SneakyThrows;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.ResultItems;
@@ -34,6 +39,9 @@ public class SoundInfoPipeline implements Pipeline {
     File_TagService file_tagService;
 
 
+    @Autowired
+    PageDao pageDao;
+
 
     @SneakyThrows
     @Override
@@ -41,14 +49,23 @@ public class SoundInfoPipeline implements Pipeline {
         // 抽取出的文件数据
         SoundFile soundFile = resultItems.get("soundInfo");
 
+        try{
+            int pageNum = resultItems.get("pageNum");
+            pageDao.updatePage(pageNum);
+        }catch (Exception e){}
+
+
+
+
+
         // 认证及下载信息
-        List<String> list = resultItems.get("download");
+        File_Detail fileDetail = resultItems.get("download");
 
         ArrayList<String> taglists = resultItems.get("taglists");
 
-        if(list!=null){
+        if(fileDetail!=null){
             // 根据url去查询数据库中是否已经有数据
-            List<SoundFile> soundInfo = soundFileService.findSoundInfo(list.get(4));
+            List<SoundFile> soundInfo = soundFileService.findSoundInfo(fileDetail.getUrl());
             // 数据库中没有数据才进行下载
             if(soundInfo.size()==0 ){
                 // 在下载完成前状态都为false
@@ -94,37 +111,51 @@ public class SoundInfoPipeline implements Pipeline {
                 // 发起下载请求
 
                     Request request = new Request();
-                    request.download(list.get(0),list.get(1),list.get(2),list.get(3));
+                String ext = request.download(fileDetail);
 
                 // 下载完成后设置成true
                 soundFile.setStatu(true);
+                soundFile.setExt("."+ext);
                 // 更新状态
                 soundFileService.updateInfoByURL(soundFile);
 
 
                 // 这种情况表明已有数据，但可能此前下载是失败的
             }else if (soundInfo.size()!=0&&soundInfo.get(0).getStatu()==false){
-                // 删除原来路径下的文件
+
                 String oldpath = soundInfo.get(0).getPath();
                 String realFilename = soundInfo.get(0).getName()+soundInfo.get(0).getExt();
-                String realpath = oldpath+realFilename;
-                File file = new File(realpath, realFilename);
-                if(file.exists()) file.delete();
+                String realpath = oldpath+"/"+realFilename;
+
+//                File file = new File(realpath, realFilename);
+//                if(file.exists()) file.delete();
+                // Endpoint以杭州为例，其它Region请按实际情况填写。
+                String endpoint = "http://oss-cn-hangzhou.aliyuncs.com";
+// 阿里云主账号AccessKey拥有所有API的访问权限，风险很高。强烈建议您创建并使用RAM账号进行API访问或日常运维，请登录 https://ram.console.aliyun.com 创建RAM账号。
+                String accessKeyId = "LTAI4GDTDQm93qwQFzu9nz8a";
+                String accessKeySecret = "IoTPd2UEd7Sx9i1USc1cfrT44C1VZQ";
+
+                OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
+                // 删除原来路径下的文件
+                ossClient.deleteObject("mango-sound", realpath);
+
+                ossClient.shutdown();
 
                 //先更新路径状态
-                System.out.println("更新路径"+list.get(3));
                 System.out.println("更新时间"+new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-                SoundFile pathChanged = soundInfo.get(0).setPath(list.get(3));
+                SoundFile pathChanged = soundInfo.get(0).setPath(fileDetail.getStoragePath());
+
                 soundFileService.updateInfoByURL(pathChanged);
 
                 // 文件下载到新路径
                 Request request = new Request();
-                request.download(list.get(0),list.get(1),list.get(2),list.get(3));
+                String ext = request.download(fileDetail);
 
 
                 // 下载完成后设置成true
                 pathChanged.setStatu(true);
                 // 更新下载状态
+                pathChanged.setExt(ext);
                 soundFileService.updateInfoByURL(pathChanged);
             }
         }

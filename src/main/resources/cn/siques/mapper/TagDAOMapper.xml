@@ -3,14 +3,14 @@
 <mapper namespace="cn.siques.dao.TagDAO">
     <!--        void save(SoundFile soundFile);-->
     <insert id="save" parameterType="Tag" useGeneratedKeys="true" keyProperty="id" >
-            insert into tag
+            insert into sys_tag
             values (#{id},#{name})
 
         </insert>
 <!--    List<Tag> findTag(String name);-->
     <select id="findTag" parameterType="String" resultType="Tag">
             select id,name
-            from tag
+            from sys_tag
             where name=#{name}
     </select>
 </mapper>
