@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 
+import java.util.Date;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -24,4 +26,9 @@ public class SoundFile {
     private String location;
     private Boolean statu;
     private String cover;
+    // 逻辑删除
+    private Integer delFlag;
+    private Date uploadTime;
+
+    private String ossUrl;
 }

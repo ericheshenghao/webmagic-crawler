@@ -27,6 +27,13 @@ import java.util.regex.Pattern;
 class CrawlerApplicationTests {
 
     @Test
+    void mytest(){
+        String test ="114.405145,30.414794,这里是";
+        String[] split = test.split(",");
+        System.out.println(split.length);
+    }
+
+    @Test
     void contextLoads() throws IOException {
         preDownload("https://www.ear0.com/index.php?app=sound&ac=download&cx=link", "PHPSESSID=lr20qpkj7m96erbcno6fpop9j1; volume=75; Hm_lvt_ca7878677a94bf7a293315510fd64fd1=1596883837,1596884389,1596886052,1596893383; cx_userid=81332; cx_code=439e19439f1184249a72aee645264cfb; Hm_lpvt_ca7878677a94bf7a293315510fd64fd1=1596910794");
     }

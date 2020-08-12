@@ -40,18 +40,13 @@ public class Crawler implements PageProcessor {
     @Resource
     Auth auth;
 
-
-
 //    private String downloadPath ="D:/upload/";
     private String downloadPath ="soundFile/";
 //    @Value("${upload.dir}")
 //    public String downloadPath;
 
 
-
     static final String URL = "https://www.ear0.com/sound/list/page-";
-
-
 
 
     private Site site= Site.me()
@@ -90,10 +85,18 @@ public class Crawler implements PageProcessor {
             String classification= Jsoup.parse(page.getHtml().css("span.type a").toString()).text();
             String description = Jsoup.parse(page.getHtml().css("div.sound_content").toString()).text();
             String originLocation = page.getHtml().css("a.location").$("a","onclick").toString();
+
+
+
             String cover  = page.getHtml().css("div.cover").$("img","src").toString();
+            // 上传时间
+            String uploadTime = Jsoup.parse(page.getHtml().css("span.upload_time").css("span.time").toString()).text();
+
 
             String location =null;
             if(originLocation!=null){
+                String locationName = Jsoup.parse(page.getHtml().css("a.location").toString()).text();
+//                System.out.println(locationName);
                 List<String> strs = new ArrayList<String>();
                 Pattern p = Pattern.compile("(?<=\\().*(?=\\))");
                 Matcher m = p.matcher(originLocation);
@@ -119,12 +122,15 @@ public class Crawler implements PageProcessor {
 
 
                 String cookie = Auth.cookie;
-                soundFile.setName(filename).setExt(ext).setCover(cover).setSize(size).setClassification(classification).setDescription(description).setPath(storagePath).setUrl(url).setLocation(location);
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                Date parse = simpleDateFormat.parse(uploadTime);
+                soundFile.setUploadTime(parse).setName(filename).setExt(ext).setCover(cover).setSize(size).setClassification(classification).setDescription(description).setPath(storagePath).setUrl(url).setLocation(location+","+locationName);
 
                 File_Detail file_detail = new File_Detail();
                 file_detail.setId(id[1])
                         .setCookie(cookie)
                         .setFileName(filename)
+
                         .setStoragePath(storagePath).setUrl(url);
 
 

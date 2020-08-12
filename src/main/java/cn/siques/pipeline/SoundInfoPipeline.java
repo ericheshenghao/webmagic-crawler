@@ -54,9 +54,10 @@ public class SoundInfoPipeline implements Pipeline {
             pageDao.updatePage(pageNum);
         }catch (Exception e){}
 
-
-
-
+        String endpoint = "http://oss-cn-hangzhou.aliyuncs.com";
+// 阿里云主账号AccessKey拥有所有API的访问权限，风险很高。强烈建议您创建并使用RAM账号进行API访问或日常运维，请登录 https://ram.console.aliyun.com 创建RAM账号。
+        String accessKeyId = "LTAI4GDTDQm93qwQFzu9nz8a";
+        String accessKeySecret = "IoTPd2UEd7Sx9i1USc1cfrT44C1VZQ";
 
         // 认证及下载信息
         File_Detail fileDetail = resultItems.get("download");
@@ -120,7 +121,7 @@ public class SoundInfoPipeline implements Pipeline {
                 soundFileService.updateInfoByURL(soundFile);
 
 
-                // 这种情况表明已有数据，但可能此前下载是失败的
+                // 这种情况表明已有数据，但可能此前下载是失败的需要重新下载
             }else if (soundInfo.size()!=0&&soundInfo.get(0).getStatu()==false){
 
                 String oldpath = soundInfo.get(0).getPath();
@@ -130,10 +131,7 @@ public class SoundInfoPipeline implements Pipeline {
 //                File file = new File(realpath, realFilename);
 //                if(file.exists()) file.delete();
                 // Endpoint以杭州为例，其它Region请按实际情况填写。
-                String endpoint = "http://oss-cn-hangzhou.aliyuncs.com";
-// 阿里云主账号AccessKey拥有所有API的访问权限，风险很高。强烈建议您创建并使用RAM账号进行API访问或日常运维，请登录 https://ram.console.aliyun.com 创建RAM账号。
-                String accessKeyId = "LTAI4GDTDQm93qwQFzu9nz8a";
-                String accessKeySecret = "IoTPd2UEd7Sx9i1USc1cfrT44C1VZQ";
+
 
                 OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
                 // 删除原来路径下的文件
@@ -144,19 +142,42 @@ public class SoundInfoPipeline implements Pipeline {
                 //先更新路径状态
                 System.out.println("更新时间"+new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
                 SoundFile pathChanged = soundInfo.get(0).setPath(fileDetail.getStoragePath());
-
+                // 更新坐标
+                pathChanged.setLocation(soundInfo.get(0).getLocation());
                 soundFileService.updateInfoByURL(pathChanged);
 
                 // 文件下载到新路径
                 Request request = new Request();
                 String ext = request.download(fileDetail);
 
-
                 // 下载完成后设置成true
                 pathChanged.setStatu(true);
                 // 更新下载状态
-                pathChanged.setExt(ext);
+
+
+                pathChanged.setExt("."+ext);
                 soundFileService.updateInfoByURL(pathChanged);
+            }else if(soundInfo.size()!=0&&!soundInfo.get(0).getExt().contains(".")){
+                String ext = soundInfo.get(0).getExt();
+                SoundFile pathChanged = soundInfo.get(0).setExt("."+ext);
+                soundFileService.updateInfoByURL(pathChanged);
+                System.out.println("修复编号为"+soundInfo.get(0).getId()+"后缀数据");
+            }else if(soundInfo.size()!=0&&soundInfo.get(0).getLocation().split(",").length!=3){
+                // 说明地理位置有问题
+                SoundFile pathChanged = soundInfo.get(0).setLocation(soundFile.getLocation());
+                soundFileService.updateInfoByURL(pathChanged);
+                System.out.println("修复编号为"+soundInfo.get(0).getId()+"的地理位置");
+            }else if(soundInfo.size()!=0 && soundInfo.get(0).getOssUrl()==null){
+                SoundFile soundFile1 = soundInfo.get(0);
+                String url = "https://mango-sound.oss-cn-hangzhou.aliyuncs.com/"+soundFile1.getPath()+"/"+soundFile1.getName()+soundFile1.getExt();
+
+                SoundFile pathChanged = soundInfo.get(0).setOssUrl(url);
+                soundFileService.updateInfoByURL(pathChanged);
+                System.out.println("修复编号为"+soundInfo.get(0).getId()+"的oss地址");
+            }else if(soundInfo.size()!=0 && soundInfo.get(0).getUploadTime()==null){
+                SoundFile soundFile1 = soundInfo.get(0).setUploadTime(soundFile.getUploadTime());
+                soundFileService.updateInfoByURL(soundFile1);
+                System.out.println("修复编号为"+soundInfo.get(0).getId()+"的上传时间");
             }
         }
 

@@ -20,6 +20,8 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.net.*;
@@ -31,9 +33,12 @@ import java.util.regex.Pattern;
 
 
 @Slf4j
+@Component
 public class Request {
     private String preDownLoadLink ="https://www.ear0.com/index.php?app=sound&ac=download&cx=link";
 
+    @Autowired
+    Auth auth;
 
     public String preDownload(String url,String cookie,String id) throws IOException {
         String downloadUrl ="";
@@ -84,8 +89,13 @@ public class Request {
        while(m.find()) {
            strs.add(m.group());
        }
+       String ext ="";
+        try {
+             ext = strs.get(0);
+        }catch (Exception e){
+            auth.login();
+        }
 
-       String ext = strs.get(0);
 
         Thread.sleep(10000);
 
@@ -106,50 +116,15 @@ public class Request {
        OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
        PutObjectRequest putObjectRequest = new PutObjectRequest(
                "mango-sound",file_detail.getStoragePath()+"/"+file_detail.getFileName()+"."+ext , is);
+       ossClient.putObject(putObjectRequest);
 
-       PutObjectResult putObjectResult = ossClient.putObject(putObjectRequest);
 
-//       String storagePath = file_detail.getStoragePath();
-
-       // 关闭OSSClient。
        ossClient.shutdown();
-
-
-
-//            FileOutputStream os =null;
-//
-//            if(!new File(storagePath).exists()){
-//                new File(storagePath).mkdirs();
-//            }
-//
-//            os = new FileOutputStream(new File(storagePath, file_detail.getFileName()+"."+ext));
-//            // 文件拷贝
-
-
-//       if(is.read(new byte[34])==-1){
-//           log.warn("认证信息已失效");
-//           System.exit(0);
-//           try{ TimeUnit.SECONDS.sleep(5000);} catch (InterruptedException e ){e.printStackTrace();}
-//          throw new FileDownloadFailException("认证信息已失效，下载失败");
-//       }
-
-//
-//            IOUtils.closeQuietly(is);
-//            IOUtils.closeQuietly(os);
-
-            res.close();
-            client.close();
-
-
+       res.close();
+       client.close();
        Thread.sleep(3000);
+       return ext;
 
-      return ext;
-
-
-        }
-
-
-
-
+    }
 
 }

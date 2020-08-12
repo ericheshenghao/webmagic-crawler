@@ -4,14 +4,19 @@
 <!--        void save(SoundFile soundFile);-->
         <insert id="save" parameterType="SoundFile" useGeneratedKeys="true" keyProperty="id" >
 
-            insert into sys_soundfile
-            values (#{id},#{name},#{ext},#{size},#{path},#{classification},#{description},#{url},#{statu},#{location},#{cover})
+            insert into sys_soundfile (id, name,
+        ext, size, path,
+        classification, description,
+        url, statu,
+        location, cover,
+        upload_time ,oss_url)
+            values (#{id},#{name},#{ext},#{size},#{path},#{classification},#{description},#{url},#{statu},#{location},#{cover},#{uploadTime},#{ossUrl})
 
         </insert>
 
 <!--    List<SoundFile> findSoundInfo(SoundFile param);-->
     <select id="findSoundInfo" parameterType="String" resultType="SoundFile">
-            select id,name,ext,size,path,classification,description,url,statu,location,cover
+            select id,name,ext,size,path,classification,description,url,statu,location,cover,upload_time,oss_url
             from sys_soundfile
             where url=#{url}
     </select>
@@ -33,6 +38,12 @@
             </if>
             <if test="ext != null ">
                 ext=#{ext},
+            </if>
+            <if test="uploadTime != null ">
+                upload_time=#{uploadTime},
+            </if>
+            <if test="ossUrl!=null">
+                oss_url=#{ossUrl}
             </if>
         </set>
 
