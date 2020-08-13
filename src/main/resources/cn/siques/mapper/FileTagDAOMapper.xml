@@ -1,6 +1,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="cn.siques.dao.File_TagDAO">
+<mapper namespace="cn.siques.dao.FileTagDAO">
     <!--       void save(Integer fileId, Integer tagId);-->
     <insert id="save" parameterType="Integer">
             insert into sys_soundfile_tag

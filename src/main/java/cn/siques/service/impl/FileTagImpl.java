@@ -1,17 +1,17 @@
 package cn.siques.service.impl;
 
-import cn.siques.dao.File_TagDAO;
+import cn.siques.dao.FileTagDAO;
 import cn.siques.entity.Tag;
-import cn.siques.service.File_TagService;
+import cn.siques.service.FileTagService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.List;
 
 @Service
-public class File_TagImpl implements File_TagService {
+public class FileTagImpl implements FileTagService {
     @Resource
-    File_TagDAO file_tagDAO;
+    FileTagDAO file_tagDAO;
 
     @Override
     public void save(Integer fileId, Integer tagId) {

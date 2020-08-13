@@ -11,7 +11,7 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @ToString
 @Accessors(chain = true)
-public class File_Detail {
+public class FileDetail {
     private String id;
     private String cookie;
     private String fileName;

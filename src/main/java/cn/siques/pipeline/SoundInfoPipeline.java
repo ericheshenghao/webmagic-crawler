@@ -1,26 +1,23 @@
 package cn.siques.pipeline;
 
-import cn.siques.crawler.Auth;
 import cn.siques.crawler.Request;
 import cn.siques.dao.PageDao;
-import cn.siques.entity.File_Detail;
+import cn.siques.entity.FileDetail;
 import cn.siques.entity.SoundFile;
 import cn.siques.entity.Tag;
-import cn.siques.service.File_TagService;
+import cn.siques.service.FileTagService;
 import cn.siques.service.SoundFileService;
 import cn.siques.service.TagService;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.ResultItems;
 import us.codecraft.webmagic.Task;
 import us.codecraft.webmagic.pipeline.Pipeline;
 
 import javax.annotation.Resource;
-import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -36,7 +33,7 @@ public class SoundInfoPipeline implements Pipeline {
     TagService tagService;
 
     @Resource
-    File_TagService file_tagService;
+    FileTagService file_tagService;
 
 
     @Autowired
@@ -60,7 +57,7 @@ public class SoundInfoPipeline implements Pipeline {
         String accessKeySecret = "IoTPd2UEd7Sx9i1USc1cfrT44C1VZQ";
 
         // 认证及下载信息
-        File_Detail fileDetail = resultItems.get("download");
+        FileDetail fileDetail = resultItems.get("download");
 
         ArrayList<String> taglists = resultItems.get("taglists");
 

@@ -1,19 +1,16 @@
 package cn.siques.crawler;
 
 import cn.siques.dao.PageDao;
-import cn.siques.dao.SoundFileDAO;
-import cn.siques.entity.File_Detail;
+import cn.siques.entity.FileDetail;
 import cn.siques.entity.SoundFile;
 import cn.siques.entity.SysPage;
 import cn.siques.pipeline.SoundInfoPipeline;
 
-import cn.siques.pipeline.UpdatePipeline;
 import lombok.SneakyThrows;
 
 import org.jsoup.Jsoup;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.Page;
@@ -30,7 +27,6 @@ import javax.annotation.Resource;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -126,7 +122,7 @@ public class Crawler implements PageProcessor {
                 Date parse = simpleDateFormat.parse(uploadTime);
                 soundFile.setUploadTime(parse).setName(filename).setExt(ext).setCover(cover).setSize(size).setClassification(classification).setDescription(description).setPath(storagePath).setUrl(url).setLocation(location+","+locationName);
 
-                File_Detail file_detail = new File_Detail();
+                FileDetail file_detail = new FileDetail();
                 file_detail.setId(id[1])
                         .setCookie(cookie)
                         .setFileName(filename)

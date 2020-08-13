@@ -1,16 +1,10 @@
 package cn.siques.crawler;
 
-import cn.siques.Exception.FileDownloadFailException;
-import cn.siques.entity.File_Detail;
-import cn.siques.service.SoundFileService;
+import cn.siques.entity.FileDetail;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
-import com.aliyun.oss.common.comm.ResponseMessage;
 import com.aliyun.oss.model.PutObjectRequest;
-import com.aliyun.oss.model.PutObjectResult;
-import com.mysql.cj.util.TimeUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -27,7 +21,6 @@ import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -79,8 +72,8 @@ public class Request {
     }
 
 
-   public String  download(File_Detail file_detail) throws IOException, InterruptedException {
-       String downloadUrl = preDownload(preDownLoadLink, file_detail.getCookie(), file_detail.getId());
+   public String  download(FileDetail fileDetail) throws IOException, InterruptedException {
+       String downloadUrl = preDownload(preDownLoadLink, fileDetail.getCookie(), fileDetail.getId());
 
        List<String> strs = new ArrayList<String>();
        Pattern p = Pattern.compile("(?<=filetype=).*(?=&time)");
@@ -100,7 +93,7 @@ public class Request {
         Thread.sleep(10000);
 
        HttpGet httpGet = new HttpGet(downloadUrl);
-       httpGet.setHeader("Cookie",file_detail.getCookie());
+       httpGet.setHeader("Cookie",fileDetail.getCookie());
 
        CloseableHttpClient client = HttpClients.createDefault();
        CloseableHttpResponse res = client.execute(httpGet);
@@ -115,7 +108,7 @@ public class Request {
 
        OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
        PutObjectRequest putObjectRequest = new PutObjectRequest(
-               "mango-sound",file_detail.getStoragePath()+"/"+file_detail.getFileName()+"."+ext , is);
+               "mango-sound",fileDetail.getStoragePath()+"/"+fileDetail.getFileName()+"."+ext , is);
        ossClient.putObject(putObjectRequest);
 
 

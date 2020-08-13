@@ -4,7 +4,7 @@ import cn.siques.entity.Tag;
 
 import java.util.List;
 
-public interface File_TagService {
+public interface FileTagService {
         void save(Integer fileId,Integer tagId);
         List<Tag> findTagByFileId(Integer id);
 }

@@ -11,7 +11,7 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @ToString
 @Accessors(chain = true)
-public class File_Tag {
+public class FileTag {
     private Integer fileId;
     private Integer tagId;
 }
